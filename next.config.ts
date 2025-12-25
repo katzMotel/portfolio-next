@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   images:{
     remotePatterns:[{
       protocol: 'https',
-      hostname: 'dylangiddenswebdesign.com',
+      hostname: 'wp.dylangiddenswebdesign.com',
       pathname: '/wp-content/uploads/**'
     }
   ]
