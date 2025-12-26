@@ -1,3 +1,4 @@
+'use client';
 import { getProjectBySlug, Project } from "@/lib/wordpress";
 import Image from "next/image";
 import Link from "next/link";
