@@ -1,20 +1,27 @@
 'use client';
-import Link from 'next/link';
-import { getAllProjects, Project } from '@/lib/wordpress';
 
-export const dynamic = 'force-dynamic';
-export default async function Home() {
-  let projects: Project[] = [];
-  let featuredProjects: Project[] = [];
+import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import { Project } from '@/lib/wordpress';
+
+export default function Home() {
+  const [featuredProjects, setFeaturedProjects] = useState<Project[]>([]);
+
+  useEffect(() => {
+    async function fetchProjects() {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_WP_API_URL}/wp/v2/projects`);
+        const projects: Project[] = await res.json();
+        const featured = projects.filter(p => p.acf.featured);
+        setFeaturedProjects(featured);
+      } catch (error) {
+        console.error('Failed to fetch projects:', error);
+      }
+    }
+
+    fetchProjects();
+  }, []);
   
-  try {
-    projects = await getAllProjects();
-    featuredProjects = projects.filter(p => p.acf.featured);
-  } catch (error) {
-    console.error('Failed to fetch projects:', error);
-    // Continue with empty arrays
-  }
-   
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white">
       {/* Hero Section */}

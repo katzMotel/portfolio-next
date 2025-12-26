@@ -4,26 +4,31 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Github, ExternalLink } from 'lucide-react';
+import { useState, useEffect } from "react";
 
 export const dynamic = 'force-dynamic';
 
-export default async function ProjectDetailPage({
+export default function ProjectDetailPage({
     params,
 }: {
-    params: Promise<{slug: string}>;
+    params: {slug: string};
 }) {
-    const { slug } = await params;
-    let project: Project | null = null;
-
-    try {
-        project = await getProjectBySlug(slug);
-    } catch (error) {
-        console.error('Failed to fetch project:', error);
-    }
-
-    if (!project) {
-        notFound();
-    }
+    const [project, setProject] = useState<Project | null>(null);
+    const [loading, setLoading] = useState(true);
+    useEffect(()=> {
+        async function fetchProject(){
+            try{
+                const res = await fetch(`${process.env.NEXT_PUBLIC_WP_API_URL}/wp/v2/projects?slug=${params.slug}`);
+                const projects: Project[] = await res.json();
+                setProject(projects[0] || null);
+            } catch(error){
+                console.error('Failed to fetch project', error);
+            } finally{
+                setLoading(false);
+            }
+        }
+        fetchProject();
+    }, [params.slug]);
 
     return (
         <div className="min-h-screen bg-[#0a0a0a] text-white">

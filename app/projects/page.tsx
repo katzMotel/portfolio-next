@@ -1,19 +1,37 @@
 'use client';
-import { getAllProjects, Project } from '@/lib/wordpress';
+
+import { useState, useEffect } from 'react';
+import { Project } from '@/lib/wordpress';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Github, ExternalLink } from 'lucide-react';
 
-export const dynamic = 'force-dynamic';
+export default function ProjectsPage() {
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string>('');
 
-export default async function ProjectsPage() {
-  let projects: Project[] = [];
-  
-  try {
-    projects = await getAllProjects();
-  } catch (error) {
-    console.error('Failed to fetch projects:', error);
-  }
+  useEffect(() => {
+    async function fetchProjects() {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_WP_API_URL}/wp/v2/projects`);
+        
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        
+        const data = await res.json();
+        setProjects(data);
+      } catch (err) {
+        console.error('Failed to fetch projects:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load projects');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchProjects();
+  }, []);
   
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white">
@@ -23,9 +41,19 @@ export default async function ProjectsPage() {
           A collection of my recent work
         </p>
         
-        {projects.length === 0 ? (
+        {loading && (
+          <p className="text-gray-400">Loading projects...</p>
+        )}
+        
+        {error && (
+          <p className="text-red-500 mb-4">Error: {error}</p>
+        )}
+        
+        {!loading && projects.length === 0 && !error && (
           <p className="text-gray-400">No projects available at the moment.</p>
-        ) : (
+        )}
+        
+        {projects.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {projects.map((project) => (
               <Link 
