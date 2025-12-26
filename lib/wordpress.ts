@@ -42,7 +42,7 @@ export async function getAllProjects(): Promise<Project[]> {
   
   try {
     const res = await fetch(apiUrl, {
-      next: { revalidate: 3600 }
+      cache: 'no-store'
     });
     
     console.log('Response status:', res.status); // Add logging
