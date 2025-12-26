@@ -15,6 +15,7 @@ export default function ProjectDetailPage({
     const [loading, setLoading] = useState(true);
     
     useEffect(() => {
+        console.log('Fetching from:', `${process.env.NEXT_PUBLIC_WP_API_URL}/wp/v2/projects`);
         async function fetchProject() {
             try {
                 const res = await fetch(`${process.env.NEXT_PUBLIC_WP_API_URL}/wp/v2/projects?slug=${params.slug}`);
