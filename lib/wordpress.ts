@@ -2,7 +2,15 @@ const WP_API_URL = process.env.NEXT_PUBLIC_WP_API_URL;
 
 interface WPImage {
   ID?: number;
+  id?: number;
   url: string;
+  alt?: string;
+  title?: string;
+  sizes?: {
+    large?: string;
+    medium?: string;
+    thumbnail?: string;
+  };
 }
 
 interface ACFFields {
@@ -11,6 +19,7 @@ interface ACFFields {
   tech_stack: string;
   project_image: WPImage;
   featured: boolean;
+  project_gallery?: WPImage[];
 }
 
 export interface Project {
@@ -27,19 +36,37 @@ export interface Project {
 }
 
 export async function getAllProjects(): Promise<Project[]> {
-  const res = await fetch(`${WP_API_URL}/wp/v2/projects`, {
-    next: { revalidate: 3600 }
-  });
+  const apiUrl = `${WP_API_URL}/wp/v2/projects`;
   
-  if (!res.ok) {
+  console.log('Fetching from:', apiUrl); // Add logging
+  
+  try {
+    const res = await fetch(apiUrl, {
+      next: { revalidate: 3600 }
+    });
+    
+    console.log('Response status:', res.status); // Add logging
+    
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status}`);
+    }
+    
+    const data = await res.json();
+    console.log('Fetched projects count:', data.length); // Add logging
+    return data;
+  } catch (error) {
+    console.error('Fetch error details:', error); // More detailed error
     throw new Error('Failed to fetch projects');
   }
-  
-  return res.json();
 }
 
 export async function getProjectBySlug(slug: string): Promise<Project> {
   const res = await fetch(`${WP_API_URL}/wp/v2/projects?slug=${slug}`);
   const projects: Project[] = await res.json();
   return projects[0];
+}
+
+export async function getAllProjectSlugs(): Promise<string[]> {
+  const projects = await getAllProjects();
+  return projects.map(project => project.slug);
 }
