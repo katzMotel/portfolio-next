@@ -1,10 +1,18 @@
 import Link from 'next/link';
-import { getAllProjects } from '@/lib/wordpress';
+import { getAllProjects, Project } from '@/lib/wordpress';
 
 export default async function Home() {
-  const projects = await getAllProjects();
-  const featuredProjects = projects.filter(p => p.acf.featured);
+  let projects: Project[] = [];
+  let featuredProjects: Project[] = [];
   
+  try {
+    projects = await getAllProjects();
+    featuredProjects = projects.filter(p => p.acf.featured);
+  } catch (error) {
+    console.error('Failed to fetch projects:', error);
+    // Continue with empty arrays
+  }
+   
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white">
       {/* Hero Section */}
