@@ -1,12 +1,10 @@
 'use client';
-import { getProjectBySlug, Project } from "@/lib/wordpress";
+
+import { Project } from "@/lib/wordpress";
 import Image from "next/image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { ArrowLeft, Github, ExternalLink } from 'lucide-react';
 import { useState, useEffect } from "react";
-
-export const dynamic = 'force-dynamic';
 
 export default function ProjectDetailPage({
     params,
@@ -15,21 +13,41 @@ export default function ProjectDetailPage({
 }) {
     const [project, setProject] = useState<Project | null>(null);
     const [loading, setLoading] = useState(true);
-    useEffect(()=> {
-        async function fetchProject(){
-            try{
+    
+    useEffect(() => {
+        async function fetchProject() {
+            try {
                 const res = await fetch(`${process.env.NEXT_PUBLIC_WP_API_URL}/wp/v2/projects?slug=${params.slug}`);
                 const projects: Project[] = await res.json();
                 setProject(projects[0] || null);
-            } catch(error){
+            } catch(error) {
                 console.error('Failed to fetch project', error);
-            } finally{
+            } finally {
                 setLoading(false);
             }
         }
         fetchProject();
     }, [params.slug]);
 
+    // Early return for loading state
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-[#0a0a0a] text-white flex items-center justify-center">
+                <p className="text-gray-400">Loading...</p>
+            </div>
+        );
+    }
+
+    // Early return for null project
+    if (!project) {
+        return (
+            <div className="min-h-screen bg-[#0a0a0a] text-white flex items-center justify-center">
+                <p className="text-gray-400">Project not found</p>
+            </div>
+        );
+    }
+
+    // TypeScript now knows project is NOT null here
     return (
         <div className="min-h-screen bg-[#0a0a0a] text-white">
             <div className="container mx-auto px-4 py-20 max-w-5xl">
