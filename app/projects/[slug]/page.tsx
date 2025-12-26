@@ -17,9 +17,13 @@ export default function ProjectDetailPage({
     useEffect(() => {
         console.log('Fetching from:', `${process.env.NEXT_PUBLIC_WP_API_URL}/wp/v2/projects`);
         async function fetchProject() {
+            const apiUrl = `${process.env.NEXT_PUBLIC_WP_API_URL}/wp/v2/projects?slug=${params.slug}`;
+            console.log('Fetching project from:', apiUrl);
             try {
                 const res = await fetch(`${process.env.NEXT_PUBLIC_WP_API_URL}/wp/v2/projects?slug=${params.slug}`);
+                console.log('Response status:', res.status);
                 const projects: Project[] = await res.json();
+                console.log('Projects returned:', projects);
                 setProject(projects[0] || null);
             } catch(error) {
                 console.error('Failed to fetch project', error);
