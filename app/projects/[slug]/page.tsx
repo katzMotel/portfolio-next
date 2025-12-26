@@ -5,22 +5,24 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, Github, ExternalLink } from 'lucide-react';
 import { useState, useEffect } from "react";
+import { useParams } from 'next/navigation';
 
-export default function ProjectDetailPage({
-    params,
-}: {
-    params: {slug: string};
-}) {
+export default function ProjectDetailPage() {
+    const params = useParams();
+    const slug = params.slug as string;
+    
     const [project, setProject] = useState<Project | null>(null);
     const [loading, setLoading] = useState(true);
     
     useEffect(() => {
-        console.log('Fetching from:', `${process.env.NEXT_PUBLIC_WP_API_URL}/wp/v2/projects`);
+        if (!slug) return;
+        
         async function fetchProject() {
-            const apiUrl = `${process.env.NEXT_PUBLIC_WP_API_URL}/wp/v2/projects?slug=${params.slug}`;
+            const apiUrl = `${process.env.NEXT_PUBLIC_WP_API_URL}/wp/v2/projects?slug=${slug}`;
             console.log('Fetching project from:', apiUrl);
+            
             try {
-                const res = await fetch(`${process.env.NEXT_PUBLIC_WP_API_URL}/wp/v2/projects?slug=${params.slug}`);
+                const res = await fetch(apiUrl);
                 console.log('Response status:', res.status);
                 const projects: Project[] = await res.json();
                 console.log('Projects returned:', projects);
@@ -32,7 +34,7 @@ export default function ProjectDetailPage({
             }
         }
         fetchProject();
-    }, [params.slug]);
+    }, [slug]);
 
     // Early return for loading state
     if (loading) {
