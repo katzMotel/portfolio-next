@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getAllProjects, Project } from '@/lib/wordpress';
 
+export const dynamic = 'force-dynamic';
 export default async function Home() {
   let projects: Project[] = [];
   let featuredProjects: Project[] = [];
